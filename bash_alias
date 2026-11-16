@@ -1,0 +1,9 @@
+For linux users: paste the code below into your .bash_aliases or .bashrc file to make mesa_histreader a command.
+
+mesa_histreader(){
+	if [[ "$@" == "-t" ]]; then
+		python3 [Path to histreader V1]/Mesa_histreaderV1.py
+	else
+		python3 [Path to histreader V2]/Mesa_histreaderV2.py
+	fi
+}
