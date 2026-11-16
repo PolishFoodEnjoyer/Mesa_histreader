@@ -12,9 +12,7 @@ def main():
         lines = f.readlines()
         headerline = lines[5]
         headers = headerline.split()
-        lines = lines[6:] #Wywalamy header
-        #Każdy model to jedna linijka, o tyle dobrze
-        #Indeksy: 1-nr modelu, 3-wiek, 5-masa, 8-masa jądra H, 35-masa jądra He, 40 - log Teff, 41 - logL, 46 - log cntr rho, 47 - log cntr T
+        lines = lines[6:] 
         for i in range(len(lines)):
             lines[i] = lines[i].split()
         model = input('Podaj numer modelu:\n')
@@ -37,7 +35,7 @@ def main():
 def print_stats(modelnumber=str, lines=list,headers=list):
     for l in lines:
         if float(l[0]) > float(modelnumber):
-            break #to po prostu optymalizacja
+            break
         elif l[0] == modelnumber:
             age = l[headers.index('star_age')]
             mass = l[headers.index('star_mass')]
