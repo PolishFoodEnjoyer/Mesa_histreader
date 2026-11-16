@@ -3,46 +3,52 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import filedialog as fd
 
-def print_stats(modelnumber=str, lines=list):
+global openfile
+global currenttext
+global lines
+global label
+global headers
+
+def print_stats(modelnumber=str, lines=list, headers=list):
     for l in lines:
         if float(l[0]) > float(modelnumber):
             break 
         elif l[0] == modelnumber:
-            age = l[2]
-            mass = l[4]
-            Hecore = l[34]
-            Ccore = l[35]
-            Teff = 10**(float(l[39]))
-            L = 10**(float(l[40]))
-            R = 10**(float(l[41]))
-            cntrrho = 10**(float(l[45]))
+            age = l[headers.index('star_age')]
+            mass = l[headers.index('star_mass')]
+            Hecore = l[headers.index('he_core_mass')]
+            Ccore = l[headers.index('co_core_mass')]
+            Teff = 10**(float(l[headers.index('log_Teff')]))
+            L = 10**(float(l[headers.index('log_L')]))
+            R = 10**(float(l[headers.index('log_R')]))
+            cntrrho = 10**(float(l[headers.index('log_cntr_Rho')]))
             cntrrho = np.format_float_scientific(cntrrho)
-            cntrT = 10**(float(l[46]))
+            cntrT = 10**(float(l[headers.index('log_cntr_T')]))
             cntrT = np.format_float_scientific(cntrT)
             return f'Parametry:\n Model: {modelnumber}\n Wiek: {age} yrs\n Masa: {mass} M_sun\n Jądro He: {Hecore} M_sun\n Jądro CO: {Ccore} M_sun\n T_eff: {Teff} K\n L: {L} L_sun\n R: {R} R_sun\n cntr_rho: {cntrrho} g/cm^3\n cntr_T: {cntrT} K'
 
-def search_parameter(param,value,lines):
+def search_parameter(param,value,lines,headers):
     val = float(value)
     if param == 'R':
-        paramindex = 41
+        paramindex = headers.index('log_R')
         log_flag = True
     elif param == 'Teff':
-        paramindex = 39
+        paramindex = headers.index('log_Teff')
         log_flag = True
     elif param == 'L':
-        paramindex = 40
+        paramindex = headers.index('log_L')
         log_flag = True
     elif param == 'cntrrho':
-        paramindex = 45
+        paramindex = headers.index('log_cntr_Rho')
         log_flag = True
     elif param == 'cntrT':
-        paramindex = 46
+        paramindex = headers.index('log_cntr_T')
         log_flag = True
     elif param == 'M' or param == 'Mass':
-        paramindex = 4
+        paramindex = headers.index('star_mass')
         log_flag = False
     elif param == 'Age':
-        paramindex = 2
+        paramindex = headers.index('star_age')
         log_flag = False
     else:
         paramindex = None
@@ -58,16 +64,11 @@ def search_parameter(param,value,lines):
         return result_index
     else:
         print('MESA histreader: search unsuccessful, setting default')
-        return 0 
+        return 0
 
 def die():
     print('MESA histreader: shutting down')
     root.destroy()
-
-global openfile
-global currenttext
-global lines
-global label
 
 def make_label():
     global currenttext
@@ -79,13 +80,16 @@ def file_call():
     global openfile
     global currenttext
     global lines
+    global headers
     openfile = fd.askopenfilename()
     with open(openfile,'r') as f:
         lines = f.readlines()
+        headerline = lines[5]
+        headers = headerline.split()
         lines = lines[6:] 
         for i in range(len(lines)):
             lines[i] = lines[i].split()
-    currenttext = print_stats(modelnumber='1',lines=lines)
+    currenttext = print_stats(modelnumber='1',lines=lines,headers=headers)
     make_label()
 
 def label_redraw():
@@ -97,23 +101,25 @@ def change_current_model():
     global currenttext
     global lines
     global label
+    global headers
     Model_no = tk.simpledialog.askstring(title="Model number change",prompt="Input model number")
     #print(Model_no) #Debug
     if float(Model_no) % 5 != 0:
         print('MESA histread: Incorrect model number, setting default')
         Model_no = '1'
-    currenttext = print_stats(modelnumber=Model_no,lines=lines)
+    currenttext = print_stats(modelnumber=Model_no,lines=lines,headers=headers)
     label_redraw()
 
 def search_by_param():
     global currenttext
     global lines
     global label
+    global headers
     searchvar = tk.simpledialog.askstring(title="Search parameter",prompt="Input search variable (R, Teff, etc.)")
     searchval = tk.simpledialog.askstring(title="Search parameter",prompt="Input search variable value")
-    index = search_parameter(searchvar,searchval,lines)
+    index = search_parameter(searchvar,searchval,lines,headers)
     Model_no = lines[index][0]
-    currenttext = print_stats(modelnumber=Model_no,lines=lines)
+    currenttext = print_stats(modelnumber=Model_no,lines=lines,headers=headers)
     label_redraw()
 
 def help_me():
